@@ -1,13 +1,27 @@
-USBACCESSFILES = USBaccessBasic.o USBaccess.o
+OBJS = USBswitch.o \
+	   USBaccessBasic.o \
+	   USBaccess.o \
+	   USBaccess.obj
 
-USBaccess.a: $(USBACCESSFILES)
-	ld $(USBACCESSFILES) -Ur -o USBaccess.obj
+LIBS = USBaccess.a
+
+all: USBswitch
+
+USBswitch: $(OBJS) $(LIBS)
+	g++ USBswitch.o USBaccess.a -o USBswitch
+
+USBaccess.a: USBaccessBasic.o USBaccess.o
+	ld USBaccessBasic.o USBaccess.o -Ur -o USBaccess.obj
 	ar rc USBaccess.a USBaccess.obj
 
-USBswitch: USBswitch.o USBaccess.a
-		g++ USBswitch.o USBaccess.a -o USBswitch
+USBaccessBasic.o: USBaccessBasic.c
+	cc -c USBaccessBasic.c
 
-all: USBswitch 
+USBaccess.o: USBaccess.cpp USBaccessBasic.o
+	g++ -c USBaccess.cpp
+
+USBswitch.o: USBswitch.cpp USBaccess.a
+	g++ -c USBswitch.cpp
 
 clean:
-	rm -f *.o *.a *.obj USBswitch
+	rm -f $(OBJS) $(LIBS) USBswitch

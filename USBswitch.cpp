@@ -28,7 +28,7 @@ main(int argc, char* argv[]) {
     bool found = false;
 	char *progName = *argv ;
 	int ok = 1 ;
-	static char *versionString = "1.0" ;
+	static char *versionString = (char *) "220" ;
 
 	for (argc--, argv++ ; argc > 0 && ok ; argc--, argv++) {
 		if (argv[0][0] == '0')
