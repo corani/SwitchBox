@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <linux/input.h>
-#include <linux/usb.h>
+#include <usb.h>
 #include <linux/hiddev.h>
 
 #include "USBaccessBasic.h"

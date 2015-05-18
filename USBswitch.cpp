@@ -25,6 +25,7 @@ main(int argc, char* argv[]) {
 	int printVersion = 0 ;
 	int printHelp = 0 ;
 	int serialNumber = -1 ;
+    bool found = false;
 	char *progName = *argv ;
 	int ok = 1 ;
 	static char *versionString = "1.0" ;
@@ -63,9 +64,9 @@ main(int argc, char* argv[]) {
 						ok = 0 ;
 						break ;
 						}
-					printf("serial number ignored - will be implemented later\n") ;
 					argc-- ;
 					argv++ ;
+                    serialNumber = atoi(argv[0]);
 					break ;
 				default:
 					printf("illegal argument %s\n", *argv) ;
@@ -94,11 +95,17 @@ main(int argc, char* argv[]) {
 		}
 
 	if (printVersion)
-		printf("%s vesion %s\n", progName, versionString) ;
+		printf("%s version %s\n", progName, versionString) ;
 
 	int USBcount = CWusb.OpenDevice() ;
 	if (debug)
 		printf("OpenDevice found %d devices\n", USBcount) ;
+
+    if (USBcount > 0 && serialNumber == -1 && turnSwitch != -1) {
+        printf("Found %d devices, specify the serial number with -n\n", USBcount);
+        found = true;
+        USBcount = -1;
+    }
 
 	int devID ;
 	for (devID=0 ; devID < USBcount ; devID++) {
@@ -108,6 +115,12 @@ main(int argc, char* argv[]) {
 						CWusb.GetSerialNumber(devID)) ;
 		if (CWusb.GetUSBType(devID) != CUSBaccess::SWITCH1_DEVICE)
 			continue ;
+
+        if (serialNumber >= 0 && serialNumber != CWusb.GetSerialNumber(devID))
+            continue ;
+
+        found = true;
+
 		if (debug)
 			printf("old switch setting = %d\n",
 						CWusb.GetSwitch(devID, CUSBaccess::SWITCH_0)) ;
@@ -139,11 +152,10 @@ main(int argc, char* argv[]) {
 				c++ ;
 			printf("%c\n", c) ;
 			}
-		break ;		// only one switch supported now
 		}
 
-	if (devID >= USBcount)
-		printf("USBswitch not found\n") ;
+	if (USBcount == 0 || !found)
+        printf("USBswitch not found\n") ;
 
 	CWusb.CloseDevice() ;
 
