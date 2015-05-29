@@ -14,9 +14,9 @@
 #include <stdio.h>
 #include "USBaccess.h"
 
-int 
-main(int argc, char* argv[]) {
-    CUSBaccess CWusb ;
+int main(int argc, char* argv[])
+{
+    CUSBaccess CWusb;
     int debug = 0;
     int state = -1;     // 0=off, 1=on
     int doRead = 0;
@@ -37,41 +37,41 @@ main(int argc, char* argv[]) {
             turnSwitch = 1;
         } else if (argv[0][0] == '-') {
             switch (argv[0][1]) {
-                case 'd':
-                case 'D':
-                    debug = 1;
-                    break;
-                case 's':
-                case 'S':
-                    secureSwitching = 1;
-                    break;
-                case 'r':
-                case 'R':
-                    doRead = 1;
-                    break;
-                case 'v':
-                case 'V':
-                    printVersion = 1;
-                    break;
-                case 'h':
-                case 'H':
-                    printHelp = 1;
-                    break;
-                case 'n':
-                case 'N':
-                    if (argc == 1) {
-                        printf("missing serial number %s\n", *argv);
-                        ok = 0;
-                        break;
-                    }
-                    argc--;
-                    argv++;
-                    serialNumber = atoi(argv[0]);
-                    break;
-                default:
-                    printf("illegal argument %s\n", *argv);
+            case 'd':
+            case 'D':
+                debug = 1;
+                break;
+            case 's':
+            case 'S':
+                secureSwitching = 1;
+                break;
+            case 'r':
+            case 'R':
+                doRead = 1;
+                break;
+            case 'v':
+            case 'V':
+                printVersion = 1;
+                break;
+            case 'h':
+            case 'H':
+                printHelp = 1;
+                break;
+            case 'n':
+            case 'N':
+                if (argc == 1) {
+                    printf("missing serial number %s\n", *argv);
                     ok = 0;
                     break;
+                }
+                argc--;
+                argv++;
+                serialNumber = atoi(argv[0]);
+                break;
+            default:
+                printf("illegal argument %s\n", *argv);
+                ok = 0;
+                break;
             }
         } else {
             printf("illegal argument %s\n", *argv);
