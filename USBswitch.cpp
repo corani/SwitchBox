@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
         printf("OpenDevice found %d devices\n", USBcount);
     }
 
-    if (USBcount > 0 && serialNumber == -1 && turnSwitch != -1) {
+    if (USBcount > 1 && serialNumber == -1 && turnSwitch != -1) {
         printf("Found %d devices, specify the serial number with -n\n", USBcount);
         found = true;
         USBcount = -1;
