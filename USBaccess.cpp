@@ -21,7 +21,7 @@ CUSBaccess::~CUSBaccess()
 }
 
 // returns number of found devices
-int CUSBaccess::OpenDevice()
+int CUSBaccess::OpenDevices()
 {
 	return cwOpenDevice();
 }
@@ -32,102 +32,104 @@ int CUSBaccess::Recover(int devNum)
 }
 
 // return true if ok, else false
-int CUSBaccess::CloseDevice()
+int CUSBaccess::CloseDevices()
 {
 	cwCloseDevice();
 
 	return 1;
 }
 
-HANDLE CUSBaccess::GetHandle(int deviceNo)
-{
-	return cwGetHandle(deviceNo);
+Switchbox *CUSBaccess::GetSwitchbox(int deviceNo) {
+    return new Switchbox(this, deviceNo);
 }
 
-int CUSBaccess::GetVersion(int deviceNo)
+int Switchbox::GetVersion()
 {
-	return cwGetVersion(deviceNo);
+	return cwGetVersion(this->id);
 }
 
-int CUSBaccess::GetUSBType(int deviceNo)
+int Switchbox::GetSerialNumber()
 {
-	return cwGetUSBType(deviceNo);
-}
-
-int CUSBaccess::GetSerialNumber(int deviceNo)
-{
-	return cwGetSerialNumber(deviceNo);
+	return cwGetSerialNumber(this->id);
 }
 
 // returns 1 if ok or 0 in case of an error
-int CUSBaccess::GetValue(int deviceNo, unsigned char *buf, int bufsize)
+int Switchbox::GetValue(unsigned char *buf, int bufsize)
 {
-	return cwGetValue(deviceNo, buf, bufsize);
+	return cwGetValue(this->id, buf, bufsize);
 }
 
 
-int CUSBaccess::SetValue(int deviceNo, unsigned char *buf, int bufsize)
+int Switchbox::SetValue(unsigned char *buf, int bufsize)
 {
-	return cwSetValue(deviceNo, buf, bufsize);
+	return cwSetValue(this->id, buf, bufsize);
 }
 
-int CUSBaccess::SetLED(int deviceNo, enum LED_IDs Led, int value)
+int Switchbox::SetLED(enum LED_IDs Led, int value)
 {
 	unsigned char s[3];
 
     s[0] = 0;
 	s[1] = Led;
 	s[2] = value;
-	return SetValue(deviceNo, s, 3);
+	return this->SetValue(s, 3);
 }
 
-int CUSBaccess::SetSwitch(int deviceNo, enum SWITCH_IDs Switch, int On)
+Switchbox::STATE Switchbox::SetSwitch(int secure, enum STATE state)
 {
-	unsigned char s[3];
-	int rval = 0;
-	int version = cwGetVersion(deviceNo);
+    if (secure) {
+        for (int tryCnt = 0; tryCnt < 5; tryCnt++) {
+            usleep(500 * 1000);
+            STATE temp = this->GetSwitch();
+            if (temp == state) {
+                return state;
+            }
+            this->SetSwitch(0, state);
+        }
+    } else {
+	    unsigned char s[3];
+	    Switchbox::STATE rval = Switchbox::ERR;
+	    int version = cwGetVersion(this->id);
 
-	s[0] = 0;
-	s[1] = Switch;
-	if (version < 4)	// old version do not invert
-		s[2] = !On;
-	else
-		s[2] = On;
-
-	rval = SetValue(deviceNo, s, 3);
-	if (rval && Switch == SWITCH_0) {			// set LED for first switch
-		if (On) {
-			SetLED(deviceNo, LED_0, 0);	// USB Switch will invert LED
-			SetLED(deviceNo, LED_1, 15);
+	    s[0] = 0;
+	    s[1] = SWITCH_0;
+	    if (version < 4) {
+	    	// old version do not invert
+		    s[2] = (state == Switchbox::ON ? 0 : 1);
 		} else {
-			SetLED(deviceNo, LED_0, 15);
-			SetLED(deviceNo, LED_1, 0);
+		    s[2] = (state == Switchbox::ON ? 1 : 0);
 		}
-	}
 
-	return rval;
+	    rval = SetValue(s, 3) ? Switchbox::ON : Switchbox::OFF;
+	    if (rval == Switchbox::ON) {			// set LED for first switch
+		    if (state == Switchbox::ON) {
+			    SetLED(LED_0, 0);	// USB Switch will invert LED
+			    SetLED(LED_1, 15);
+		    } else {
+			    SetLED(LED_0, 15);
+			    SetLED(LED_1, 0);
+		    }
+	    }
+
+	    return rval;
+	}
 }
 
-// On 0=off, 1=on, -1=error
-int CUSBaccess::GetSwitch(int deviceNo, enum SWITCH_IDs Switch)
+Switchbox::STATE Switchbox::GetSwitch()
 {
 	const int bufSize = 6;
 	unsigned char buf[bufSize];
-	int ok = 0;
-	int version = cwGetVersion(deviceNo);
+	Switchbox::STATE res = Switchbox::ERR;
+	int version = cwGetVersion(this->id);
+	int mask = 1;
 
-	if (GetValue(deviceNo, buf, bufSize)) {
-		int mask = 1 << ((Switch - SWITCH_0) * 2);
-		if (version >= 10)
-			ok = (buf[0] & mask) ? 1 : 0;
-        else	// old switch
-            ok = (buf[2] & mask) ? 1 : 0;
-    } else
-		ok = -1;	// getvalue failed - may be disconnected
-
-	if (ok >= 0 && version < 4)
-		ok = !ok;
-
-	return ok;
+	if (!GetValue(buf, bufSize))
+	    return Switchbox::ERR;
+	else if (version >= 10)
+		return (buf[0] & mask) ? Switchbox::ON : Switchbox::OFF;
+	else if (version >= 4)
+		return (buf[2] & mask) ? Switchbox::ON : Switchbox::OFF;
+    else
+		return (buf[2] & mask) ? Switchbox::OFF : Switchbox::ON;
 }
 

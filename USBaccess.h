@@ -4,35 +4,47 @@
 typedef int HANDLE;
 const int USBaccessVersion = 110;
 
+class Switchbox;
+
 class CUSBaccess {
-	public:
-		enum LED_IDs {
-            LED_0 = 0,
-            LED_1 = 1,
-        };
-		enum SWITCH_IDs {
-            SWITCH_0  = 0x10,
-		};
-		enum USBtype_enum {
-            ILLEGAL_DEVICE = 0x00,
-			SWITCH1_DEVICE = 0x08,
-		};
 	public:
 		CUSBaccess();
 		virtual ~CUSBaccess();		// maybe used as base class
 
-		virtual int			OpenDevice();			// returns number of found devices
-		virtual int			CloseDevice();		    // close all devices
+		virtual int			OpenDevices();			// returns number of found devices
+		virtual int			CloseDevices();		    // close all devices
 		virtual int			Recover(int devNum);	// try to find disconnected devices, returns true if succeeded
-		virtual HANDLE		GetHandle(int deviceNo);
-		virtual int			GetValue(int deviceNo, unsigned char *buf, int bufsize);
-		virtual int			SetValue(int deviceNo, unsigned char *buf, int bufsize);
-		virtual int			SetLED(int deviceNo, enum LED_IDs Led, int value);	// value: 0=off 7=medium 15=highlight
-		virtual int			SetSwitch(int deviceNo, enum SWITCH_IDs Switch, int On);	//	On: 0=off, 1=on
-		virtual int			GetSwitch(int deviceNo, enum SWITCH_IDs Switch);			//	On: 0=off, 1=on, -1=error
-		virtual int			GetVersion(int deviceNo);
-		virtual int			GetUSBType(int deviceNo);
-		virtual int			GetSerialNumber(int deviceNo);
+		Switchbox *         GetSwitchbox(int id);
 };
 
+class Switchbox {
+private:
+    CUSBaccess *usb;
+    int id;
+public:
+	enum LED_IDs {
+        LED_0 = 0,
+        LED_1 = 1,
+    };
+    enum STATE {
+        ERR = -1,
+        OFF =  0,
+        ON  =  1,
+    };
+	enum SWITCH_IDs {
+        SWITCH_0  = 0x10,
+	};
+public:
+    Switchbox(CUSBaccess *usb, int id) : usb(usb), id(id) {}
+    ~Switchbox() {}
+    
+    STATE SetSwitch(int secure, enum STATE state);
+	STATE GetSwitch();
+	int	GetVersion();
+	int GetSerialNumber();
+private:
+	int	GetValue(unsigned char *buf, int bufsize);
+	int	SetValue(unsigned char *buf, int bufsize);
+	int	SetLED(enum LED_IDs Led, int value);	// value: 0=off 7=medium 15=highlight
+};
 #endif // __USBACCESS_H__

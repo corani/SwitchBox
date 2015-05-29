@@ -18,10 +18,10 @@ int main(int argc, char* argv[])
 {
     CUSBaccess CWusb;
     int debug = 0;
-    int state = -1;     // 0=off, 1=on
+    Switchbox::STATE state = Switchbox::ERR;
+    Switchbox::STATE turnSwitch = Switchbox::ERR;
     int doRead = 0;
     int secureSwitching = 0;
-    int turnSwitch = -1;    // 0=off, 1=on
     int printVersion = 0;
     int printHelp = 0;
     int serialNumber = -1;
@@ -32,9 +32,9 @@ int main(int argc, char* argv[])
 
     for (argc--, argv++; argc > 0 && ok; argc--, argv++) {
         if (argv[0][0] == '0') {
-            turnSwitch = 0;
+            turnSwitch = Switchbox::OFF;
         } else if (argv[0][0] == '1') {
-            turnSwitch = 1;
+            turnSwitch = Switchbox::ON;
         } else if (argv[0][0] == '-') {
             switch (argv[0][1]) {
             case 'd':
@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
         printf("%s version %s\n", progName, versionString);
     }
 
-    int USBcount = CWusb.OpenDevice();
+    int USBcount = CWusb.OpenDevices();
     if (debug) {
         printf("OpenDevice found %d devices\n", USBcount);
     }
@@ -110,21 +110,18 @@ int main(int argc, char* argv[])
     }
 
     for (int devID = 0; devID < USBcount; devID++) {
+        Switchbox *sw = CWusb.GetSwitchbox(devID);
+        
         if (debug) {
-            printf("Device %d: Type=%d, Version=%d, SerNum=%d\n",
+            printf("Device %d: Version=%d, SerNum=%d\n",
                 devID,
-                CWusb.GetUSBType(devID),
-                CWusb.GetVersion(devID),
-                CWusb.GetSerialNumber(devID)
+                sw->GetVersion(),
+                sw->GetSerialNumber()
             );
         }
 
-        if (CWusb.GetUSBType(devID) != CUSBaccess::SWITCH1_DEVICE) {
-            continue;
-        }
-
         // A serial number was specified, but it's not this one
-        if (serialNumber >= 0 && serialNumber != CWusb.GetSerialNumber(devID)) {
+        if (serialNumber >= 0 && serialNumber != sw->GetSerialNumber()) {
             continue;
         }
 
@@ -132,48 +129,36 @@ int main(int argc, char* argv[])
 
         if (debug) {
             printf("old switch setting = %d\n",
-                CWusb.GetSwitch(devID, CUSBaccess::SWITCH_0)
+                sw->GetSwitch()
             );
         }
 
         state = turnSwitch;
-        if (turnSwitch == 0 || turnSwitch == 1) {
-            ok = CWusb.SetSwitch(devID, CUSBaccess::SWITCH_0, turnSwitch);
+        if (turnSwitch != Switchbox::ERR) {
+            ok = sw->SetSwitch(secureSwitching, turnSwitch);
         }
 
         if (!ok) {
             printf("USBswitch cannot be reached\n");
-            state = -1;
+            state = Switchbox::ERR;
             break;
-        }
-
-        if (secureSwitching && turnSwitch >= 0) {
-            for (int tryCnt = 0; tryCnt < 5; tryCnt++) {
-                usleep(500 * 1000);
-                state = CWusb.GetSwitch(devID, CUSBaccess::SWITCH_0);
-                if (turnSwitch == state) {
-                    break;
-                }
-                if (debug) {
-                    printf("retry switch!\n");
-                }
-                CWusb.SetSwitch(devID, CUSBaccess::SWITCH_0, turnSwitch);
-            }
         }
 
         if (doRead) {
             printf("%d: %d\n",
-                CWusb.GetSerialNumber(devID),
-                CWusb.GetSwitch(devID, CUSBaccess::SWITCH_0)
+                sw->GetSerialNumber(),
+                sw->GetSwitch()
             );
         }
+        
+        delete sw;
     }
 
     if (USBcount == 0 || !found) {
         printf("USBswitch not found\n");
     }
 
-    CWusb.CloseDevice();
+    CWusb.CloseDevices();
 
     return state;
 }
