@@ -7,15 +7,7 @@
 
 enum cwUSBtype_enum {
     ILLEGAL_DEVICE      = 0x00,
-	LED_DEVICE          = 0x01,
-	WATCHDOG_DEVICE     = 0x05,
-	AUTORESET_DEVICE    = 0x06,
 	SWITCH1_DEVICE      = 0x08,
-	TEMPERATURE_DEVICE  = 0x10,
-	TEMPERATURE2_DEVICE = 0x11,
-	TEMPERATURE5_DEVICE = 0x15,
-	HUMIDITY1_DEVICE    = 0x20,
-	CONTACT1_DEVICE     = 0x30,
 };
 
 typedef struct {

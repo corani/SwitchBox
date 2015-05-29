@@ -6,44 +6,16 @@ const int USBaccessVersion = 110;
 
 class CUSBaccess {
 	public:
-		enum USBactions {
-            LEDs = 0, EEwrite = 1, EEread = 2, Reset = 3, KeepCalm = 4, GetInfo = 5,
-			StartMeasuring = 6,		// USB-Humidity
-			RunPoint = 10				// USB-Encoder
-		};
-		enum USBInfoType {
-            OnlineTime = 1, OnlineCount = 2, ManualTime = 3, ManualCount = 4
-        };
 		enum LED_IDs {
-            LED_0 = 0, LED_1 = 1, LED_2 = 2, LED_3 = 3
-        };
-		enum COUNTER_IDs {
-            COUNTER_0 = 0, COUNTER_1 = 1
+            LED_0 = 0,
+            LED_1 = 1,
         };
 		enum SWITCH_IDs {
-            SWITCH_0  = 0x10, SWITCH_1  = 0x11, SWITCH_2  = 0x12, SWITCH_3  = 0x13,
-			SWITCH_4  = 0x14, SWITCH_5  = 0x15, SWITCH_6  = 0x16, SWITCH_7  = 0x17,
-			SWITCH_8  = 0x18, SWITCH_9  = 0x19, SWITCH_10 = 0x1a, SWITCH_11 = 0x1b,
-			SWITCH_12 = 0x1c, SWITCH_13 = 0x1d, SWITCH_14 = 0x1e, SWITCH_15 = 0x1f
+            SWITCH_0  = 0x10,
 		};
 		enum USBtype_enum {
             ILLEGAL_DEVICE = 0x00,
-			LED_DEVICE = 0x01,
-			WATCHDOG_DEVICE = 0x05,
-			AUTORESET_DEVICE = 0x06,
 			SWITCH1_DEVICE = 0x08,
-			SWITCH2_DEVICE = 0x09, SWITCH3_DEVICE = 0x0a, SWITCH4_DEVICE = 0x0c,
-			TEMPERATURE_DEVICE = 0x10,
-			TEMPERATURE2_DEVICE = 0x11,
-			TEMPERATURE5_DEVICE = 0x15,
-			HUMIDITY1_DEVICE = 0x20,
-			CONTACT00_DEVICE = 0x30, CONTACT01_DEVICE = 0x31, CONTACT02_DEVICE = 0x32, CONTACT03_DEVICE = 0x33,
-			CONTACT04_DEVICE = 0x34, CONTACT05_DEVICE = 0x35, CONTACT06_DEVICE = 0x36, CONTACT07_DEVICE = 0x37,
-			CONTACT08_DEVICE = 0x38, CONTACT09_DEVICE = 0x39, CONTACT10_DEVICE = 0x3a, CONTACT11_DEVICE = 0x3b,
-			CONTACT12_DEVICE = 0x3c, CONTACT13_DEVICE = 0x3d, CONTACT14_DEVICE = 0x3e, CONTACT15_DEVICE = 0x3f,
-
-			ENCODER01_DEVICE = 0x80,
-			BUTTON_NODEVICE = 0x1000
 		};
 	public:
 		CUSBaccess();

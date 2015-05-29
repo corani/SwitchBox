@@ -114,8 +114,6 @@ int CUSBaccess::GetSwitch(int deviceNo, enum SWITCH_IDs Switch)
 	const int bufSize = 6;
 	unsigned char buf[bufSize];
 	int ok = 0;
-	USBtype_enum devType = (USBtype_enum)cwGetUSBType(deviceNo);
-
 	int version = cwGetVersion(deviceNo);
 
 	if (GetValue(deviceNo, buf, bufSize)) {
