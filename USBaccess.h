@@ -58,27 +58,9 @@ class CUSBaccess {
 		virtual int			SetLED(int deviceNo, enum LED_IDs Led, int value);	// value: 0=off 7=medium 15=highlight
 		virtual int			SetSwitch(int deviceNo, enum SWITCH_IDs Switch, int On);	//	On: 0=off, 1=on
 		virtual int			GetSwitch(int deviceNo, enum SWITCH_IDs Switch);			//	On: 0=off, 1=on, -1=error
-		virtual int			GetSeqSwitch(int deviceNo, enum SWITCH_IDs Switch, int seqNum);		//	On: 0=off, 1=on, -1=error
-		virtual int			GetSwitchConfig(int deviceNo, int *switchCount, int *buttonAvailable);
-		virtual int			GetTemperature(int deviceNo, double *Temperature, int *timeID);
-		virtual int			GetHumidity(int deviceNo, double *Humidity, int *timeID);
-		virtual int			ResetDevice(int deviceNo);
-		virtual int			StartDevice(int deviceNo);
-		virtual int			CalmWatchdog(int deviceNo, int minutes, int minutes2restart);
 		virtual int			GetVersion(int deviceNo);
 		virtual int			GetUSBType(int deviceNo);
 		virtual int			GetSerialNumber(int deviceNo);
-		virtual int			GetDLLVersion() { return USBaccessVersion; }
-		virtual int			GetManualOnCount(int deviceNo);		    // returns how often switch is manually turned on
-		virtual int			GetManualOnTime(int deviceNo);			// returns how long (seconds) switch is manually turned on
-		virtual int			GetOnlineOnCount(int deviceNo);		    // returns how often switch is turned on by USB command
-		virtual int			GetOnlineOnTime(int deviceNo);			// returns how long (seconds) switch is turned on by USB command
-		virtual int			GetMultiSwitch(int deviceNo, unsigned long int *mask, unsigned long int *value, int seqNumber);
-		virtual int			SetMultiSwitch(int deviceNo, unsigned long int value);
-		virtual int			SetMultiConfig(int deviceNo, unsigned long int directions);
-		virtual int			GetCounter(int deviceNo, enum COUNTER_IDs counter);	// return value of counter (0 or 1 for USB-IO16)
-		virtual int			SyncDevice(int deviceNo, unsigned long int mask);
-		virtual void		Sleep(int ms) { usleep(ms * 1000); }
 };
 
 #endif // __USBACCESS_H__

@@ -30,8 +30,8 @@ void cwInitDevice();
 int	cwOpenDevice();	// returns number of found devices
 int cwRecover(int deviceNo);
 void cwCloseDevice();
-int	cwGetValue(int deviceNo, int UsagePage, int Usage, unsigned char *buf, int bufsize);
-int	cwSetValue(int deviceNo, int UsagePage, int Usage, unsigned char *buf, int bufsize);
+int	cwGetValue(int deviceNo, unsigned char *buf, int bufsize);
+int	cwSetValue(int deviceNo, unsigned char *buf, int bufsize);
 unsigned long int cwGetHandle(int deviceNo);
 int	cwGetVersion(int deviceNo);
 int	cwGetSerialNumber(int deviceNo);

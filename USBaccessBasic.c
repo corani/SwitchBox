@@ -176,9 +176,8 @@ int cwRecover(int devNum)
 }
 
 // returns 1 if ok or 0 in case of an error
-int cwGetValue(int deviceNo, int UsagePage, int Usage, unsigned char *buf, int bufsize)
+int cwGetValue(int deviceNo, unsigned char *buf, int bufsize)
 {
-	// UsagePage and Usage needed for win32
 	struct hiddev_field_info finfo;
 	struct hiddev_usage_ref uref;
 	struct hiddev_report_info rinfo;
@@ -214,7 +213,6 @@ int cwGetValue(int deviceNo, int UsagePage, int Usage, unsigned char *buf, int b
 			ok = ioctl(data[deviceNo].handle, HIDIOCGUCODE, (void *)&uref);
 		}
 		if (ok >= 0 && finfo.maxusage != bufsize) {
-			// printf("bufsize mismatch maxusage=%d\n", finfo.maxusage) ;
 			ok = -1;
 		}
 		if (ok >= 0)
@@ -231,7 +229,6 @@ int cwGetValue(int deviceNo, int UsagePage, int Usage, unsigned char *buf, int b
 			uref.usage_index = u;
 			ok = ioctl(data[deviceNo].handle, HIDIOCGUSAGE, (void *)&uref);
 			if (ok < 0) {
-				// perror("HIDIOCGUSAGE failed - ") ;
 				break;
 			}
 			buf[u] = uref.value & 0xff;
@@ -241,9 +238,8 @@ int cwGetValue(int deviceNo, int UsagePage, int Usage, unsigned char *buf, int b
 }
 
 
-int cwSetValue(int deviceNo, int UsagePage, int Usage, unsigned char *buf, int bufsize)
+int cwSetValue(int deviceNo, unsigned char *buf, int bufsize)
 {
-	// UsagePage and Usage needed for win32
 	struct hiddev_report_info rinfo;
 	struct hiddev_field_info finfo;
 	struct hiddev_usage_ref uref;
@@ -269,7 +265,6 @@ int cwSetValue(int deviceNo, int UsagePage, int Usage, unsigned char *buf, int b
 		ok = ioctl(data[deviceNo].handle, HIDIOCGUCODE, (void *)&uref);
 	}
 	if (ok >= 0 && finfo.maxusage != bufsize) {
-		// printf("bufsize mismatch maxusage=%d\n", finfo.maxusage) ;
 		ok = -1;
 	}
 	if (ok >= 0) {
